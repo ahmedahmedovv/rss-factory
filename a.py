@@ -4,6 +4,9 @@ import yaml
 import json
 from datetime import datetime
 import urllib3
+import os
+from urllib.parse import urlparse
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def load_config(config_file='config.yaml'):
@@ -12,6 +15,24 @@ def load_config(config_file='config.yaml'):
     """
     with open(config_file, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
+
+def get_filename_from_url(url):
+    """
+    Create a safe filename from URL
+    """
+    parsed = urlparse(url)
+    # Get domain name and remove special characters
+    domain = parsed.netloc.replace('.', '_').replace('/', '_')
+    return f"scraped_{domain}.json"
+
+def save_to_json(data, url):
+    """
+    Save scraped data to JSON file with filename based on URL
+    """
+    filename = get_filename_from_url(url)
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return filename
 
 def scrape_website(config):
     """
@@ -46,25 +67,15 @@ def scrape_website(config):
         print(f"Error scraping {config['url']}: {e}")
         return results
 
-def save_to_json(data, filename='scraped_data.json'):
-    """
-    Save scraped data to JSON file
-    """
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
 if __name__ == "__main__":
     # Load configurations from YAML file
     config = load_config()
     websites = config['websites']
     
-    all_results = []
-    
     for website in websites:
         print(f"\nScraping {website['url']}...")
         results = scrape_website(website)
-        all_results.extend(results)
-    
-    # Save all results to JSON file
-    save_to_json(all_results)
-    print(f"\nSaved {len(all_results)} items to scraped_data.json")
+        
+        if results:  # Only save if we have results
+            filename = save_to_json(results, website['url'])
+            print(f"Saved {len(results)} items to {filename}")

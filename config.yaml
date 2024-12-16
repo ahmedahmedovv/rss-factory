@@ -4,3 +4,11 @@ websites:
 
   - url: https://sport.um.warszawa.pl/waw/aktywna-warszawa/aktualnosci
     selector: .custom-list-page__item
+
+  - url: https://www.wojsko-polskie.pl/sgwp/articles/list/aktualnosci-w/?strona=1
+    selector: .newsgrid.hoverable
+
+
+
+
+
