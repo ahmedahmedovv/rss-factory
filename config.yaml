@@ -1,0 +1,6 @@
+websites:
+  - url: https://www.pap.pl/kraj?page=0
+    selector: .title
+
+  - url: https://example.com/news
+    selector: .article-card
