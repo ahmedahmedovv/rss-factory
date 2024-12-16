@@ -15,7 +15,9 @@ websites:
     selector: .okno li
 
   - url: https://www.gov.pl/web/diplomacy/news-
-    selector: .title
+    selectors:
+      - .title
+      - .intro
 
 
 

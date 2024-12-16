@@ -69,7 +69,7 @@ def create_rss_feed(data, url):
 
 def scrape_website(config):
     """
-    Generic scraping function that takes a configuration dictionary
+    Generic scraping function that handles multiple selectors
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -82,19 +82,24 @@ def scrape_website(config):
         
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        elements = soup.select(config['selector'])
+        # Handle either single selector (string) or multiple selectors (list)
+        selectors = config.get('selectors', [config.get('selector')])
         
-        for element in elements:
-            text = clean_text(element.text)
-            if text:
-                results.append({
-                    "text": text,
-                    "url": config['url'],
-                    "timestamp": datetime.now().isoformat()
-                })
-                print(text)
+        for selector in selectors:
+            elements = soup.select(selector)
             
-        print(f"Found {len(elements)} elements")
+            for element in elements:
+                text = clean_text(element.text)
+                if text:
+                    results.append({
+                        "text": text,
+                        "url": config['url'],
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    print(f"Found from selector {selector}: {text}")
+            
+            print(f"Found {len(elements)} elements with selector: {selector}")
+            
         return results
         
     except Exception as e:
