@@ -24,10 +24,6 @@ var/
 logs/
 *.log
 
-# Data
-data/
-*.xml
-
 # Virtual Environment
 venv/
 .env/
