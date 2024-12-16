@@ -2,5 +2,5 @@ websites:
   - url: https://www.pap.pl/kraj?page=0
     selector: .title
 
-  - url: https://example.com/news
-    selector: .article-card
+  - url: https://sport.um.warszawa.pl/waw/aktywna-warszawa/aktualnosci
+    selector: .custom-list-page__item

@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import yaml
 import json
 from datetime import datetime
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def load_config(config_file='config.yaml'):
     """
@@ -21,12 +23,11 @@ def scrape_website(config):
     
     results = []
     try:
-        response = requests.get(config['url'], headers=headers)
+        response = requests.get(config['url'], headers=headers, verify=False)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Use the selector specified in the config
         elements = soup.select(config['selector'])
         
         for element in elements:
