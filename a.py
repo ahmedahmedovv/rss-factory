@@ -161,17 +161,37 @@ def setup_logging():
 
 def scrape_website(config):
     """
-    Generic scraping function that handles multiple selectors
+    Generic scraping function that handles multiple selectors with improved error handling
     """
     logger = logging.getLogger()
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Connection': 'keep-alive',
     }
     
     results = []
     try:
         logger.info(f"Starting to scrape: {config['url']}")
-        response = requests.get(config['url'], headers=headers, verify=False)
+        
+        # Add retry mechanism
+        session = requests.Session()
+        retries = urllib3.util.Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504]
+        )
+        session.mount('https://', requests.adapters.HTTPAdapter(max_retries=retries))
+        
+        # Add timeout and additional parameters
+        response = session.get(
+            config['url'],
+            headers=headers,
+            verify=False,  # Only if SSL verification is causing issues
+            timeout=(10, 30),  # (connect timeout, read timeout)
+            allow_redirects=True
+        )
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -191,13 +211,14 @@ def scrape_website(config):
                     })
                     logger.debug(f"Scraped content: {text[:100]}...")
         
-        return results
-        
     except requests.exceptions.RequestException as e:
         logger.error(f"Network error while scraping {config['url']}: {str(e)}")
+        logger.error(f"Response status code: {getattr(e.response, 'status_code', 'N/A')}")
+        logger.error(f"Response headers: {getattr(e.response, 'headers', 'N/A')}")
     except Exception as e:
         logger.error(f"Unexpected error while scraping {config['url']}: {str(e)}")
         logger.exception("Full traceback:")
+    
     return results
 
 if __name__ == "__main__":
