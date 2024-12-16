@@ -8,6 +8,8 @@ import re
 from feedgen.feed import FeedGenerator
 import pytz
 import os
+import logging
+import sys
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -77,26 +79,62 @@ def create_rss_feed(data, url):
     fg.rss_file(full_path)
     return full_path
 
+def setup_logging():
+    """
+    Configure logging system with both file and console output in a dedicated log folder
+    """
+    # Create logs directory if it doesn't exist
+    log_dir = 'logs'
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Create a unique log filename with timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_filename = f'scraping_{timestamp}.log'
+    
+    # Create full path for log file
+    log_filepath = os.path.join(log_dir, log_filename)
+    
+    # Configure logging format
+    log_format = '%(asctime)s - %(levelname)s - %(message)s'
+    date_format = '%Y-%m-%d %H:%M:%S'
+    
+    # Set up root logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    
+    # Create console handler with custom formatting
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(logging.Formatter(log_format, date_format))
+    logger.addHandler(console_handler)
+    
+    # Create file handler
+    file_handler = logging.FileHandler(log_filepath)
+    file_handler.setFormatter(logging.Formatter(log_format, date_format))
+    logger.addHandler(file_handler)
+    
+    return logger
+
 def scrape_website(config):
     """
     Generic scraping function that handles multiple selectors
     """
+    logger = logging.getLogger()
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
     
     results = []
     try:
+        logger.info(f"Starting to scrape: {config['url']}")
         response = requests.get(config['url'], headers=headers, verify=False)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Handle either single selector (string) or multiple selectors (list)
         selectors = config.get('selectors', [config.get('selector')])
         
         for selector in selectors:
             elements = soup.select(selector)
+            logger.info(f"Found {len(elements)} elements with selector: {selector}")
             
             for element in elements:
                 text = clean_text(element.text)
@@ -106,27 +144,39 @@ def scrape_website(config):
                         "url": config['url'],
                         "timestamp": datetime.now().isoformat()
                     })
-                    print(f"Found from selector {selector}: {text}")
-            
-            print(f"Found {len(elements)} elements with selector: {selector}")
-            
+                    logger.debug(f"Scraped content: {text[:100]}...")
+        
         return results
         
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error while scraping {config['url']}: {str(e)}")
     except Exception as e:
-        print(f"Error scraping {config['url']}: {e}")
-        return results
+        logger.error(f"Unexpected error while scraping {config['url']}: {str(e)}")
+        logger.exception("Full traceback:")
+    return results
 
 if __name__ == "__main__":
-    # First, install required package:
-    # pip install feedgen pytz
+    # Setup logging
+    logger = setup_logging()
+    logger.info("Starting web scraping process")
     
-    config = load_config()
-    websites = config['websites']
-    
-    for website in websites:
-        print(f"\nScraping {website['url']}...")
-        results = scrape_website(website)
+    try:
+        config = load_config()
+        websites = config['websites']
         
-        if results:
-            filename = create_rss_feed(results, website['url'])
-            print(f"Created RSS feed with {len(results)} items in {filename}")
+        for website in websites:
+            logger.info(f"Processing website: {website['url']}")
+            results = scrape_website(website)
+            
+            if results:
+                filename = create_rss_feed(results, website['url'])
+                logger.info(f"Created RSS feed with {len(results)} items in {filename}")
+            else:
+                logger.warning(f"No results found for {website['url']}")
+                
+    except Exception as e:
+        logger.critical(f"Critical error in main process: {str(e)}")
+        logger.exception("Full traceback:")
+        sys.exit(1)
+        
+    logger.info("Web scraping process completed")
