@@ -10,8 +10,27 @@ import pytz
 import os
 import logging
 import sys
+from dotenv import load_dotenv
+from supabase import create_client, Client
+import io
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Load environment variables
+load_dotenv()
+
+def init_supabase() -> Client:
+    """Initialize Supabase client using environment variables"""
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    
+    if not url or not key:
+        raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set in .env file")
+    
+    return create_client(
+        supabase_url=url,
+        supabase_key=key
+    )
 
 def clean_text(text):
     """
@@ -48,12 +67,8 @@ def get_filename_from_url(url):
 
 def create_rss_feed(data, url):
     """
-    Create RSS feed from scraped data and save it in the data folder
+    Create RSS feed from scraped data and save it to Supabase storage
     """
-    # Create data directory if it doesn't exist
-    data_dir = 'data'
-    os.makedirs(data_dir, exist_ok=True)
-    
     fg = FeedGenerator()
     fg.title(f'Scraped News from {urlparse(url).netloc}')
     fg.description('Automatically generated feed from scraped content')
@@ -68,16 +83,46 @@ def create_rss_feed(data, url):
         fe.title(item['text'])
         fe.link(href=item['url'])
         fe.description(item['text'])
-        # Convert timestamp to datetime with timezone
         timestamp = datetime.fromisoformat(item['timestamp'])
         local_timestamp = poland_tz.localize(timestamp)
         fe.published(local_timestamp)
-        
+    
+    # Generate filename
     filename = get_filename_from_url(url)
-    # Save file in the data directory
-    full_path = os.path.join(data_dir, filename)
-    fg.rss_file(full_path)
-    return full_path
+    
+    # Initialize Supabase client
+    supabase = init_supabase()
+    
+    # Generate RSS content as bytes
+    feed_content = fg.rss_str()
+    
+    try:
+        # Convert feed_content to bytes if it isn't already
+        if not isinstance(feed_content, bytes):
+            feed_content = feed_content.encode('utf-8')
+        
+        # Upload to Supabase storage
+        response = supabase.storage \
+            .from_('rss_storage') \
+            .upload(
+                path=filename,
+                file=feed_content,
+                file_options={
+                    "content-type": "application/rss+xml",
+                    "x-upsert": "true"  # This will update the file if it already exists
+                }
+            )
+        
+        # Get public URL
+        public_url = supabase.storage \
+            .from_('rss_storage') \
+            .get_public_url(filename)
+            
+        return public_url
+        
+    except Exception as e:
+        logging.error(f"Error uploading to Supabase: {str(e)}")
+        raise
 
 def setup_logging():
     """
@@ -169,8 +214,8 @@ if __name__ == "__main__":
             results = scrape_website(website)
             
             if results:
-                filename = create_rss_feed(results, website['url'])
-                logger.info(f"Created RSS feed with {len(results)} items in {filename}")
+                public_url = create_rss_feed(results, website['url'])
+                logger.info(f"Created RSS feed with {len(results)} items at {public_url}")
             else:
                 logger.warning(f"No results found for {website['url']}")
                 
