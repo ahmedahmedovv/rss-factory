@@ -6,8 +6,19 @@ from datetime import datetime
 import urllib3
 import os
 from urllib.parse import urlparse
+import re
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def clean_text(text):
+    """
+    Clean the text by removing extra whitespace, newlines and HTML tags
+    """
+    # Remove HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+    # Remove extra whitespace and newlines
+    text = ' '.join(text.split())
+    return text.strip()
 
 def load_config(config_file='config.yaml'):
     """
@@ -21,7 +32,6 @@ def get_filename_from_url(url):
     Create a safe filename from URL
     """
     parsed = urlparse(url)
-    # Get domain name and remove special characters
     domain = parsed.netloc.replace('.', '_').replace('/', '_')
     return f"scraped_{domain}.json"
 
@@ -52,13 +62,15 @@ def scrape_website(config):
         elements = soup.select(config['selector'])
         
         for element in elements:
-            text = element.text.strip()
-            results.append({
-                "text": text,
-                "url": config['url'],
-                "timestamp": datetime.now().isoformat()
-            })
-            print(text)
+            # Clean the text before adding to results
+            text = clean_text(element.text)
+            if text:  # Only add non-empty texts
+                results.append({
+                    "text": text,
+                    "url": config['url'],
+                    "timestamp": datetime.now().isoformat()
+                })
+                print(text)
             
         print(f"Found {len(elements)} elements")
         return results
@@ -68,7 +80,6 @@ def scrape_website(config):
         return results
 
 if __name__ == "__main__":
-    # Load configurations from YAML file
     config = load_config()
     websites = config['websites']
     
@@ -76,6 +87,6 @@ if __name__ == "__main__":
         print(f"\nScraping {website['url']}...")
         results = scrape_website(website)
         
-        if results:  # Only save if we have results
+        if results:
             filename = save_to_json(results, website['url'])
             print(f"Saved {len(results)} items to {filename}")
