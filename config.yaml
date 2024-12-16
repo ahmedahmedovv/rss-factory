@@ -19,6 +19,13 @@ websites:
       - .title
       - .intro
 
+  - url: https://www.pap.pl/kraj?page=0
+    selector: .title
+
+  - url: https://www.polskieradio.pl/399/8097
+    selector: .title.title--big
+
+
 
 
 

@@ -28,11 +28,21 @@ def load_config(config_file='config.yaml'):
 
 def get_filename_from_url(url):
     """
-    Create a safe filename from URL
+    Create a safe filename from URL while preserving the exact path
     """
     parsed = urlparse(url)
-    domain = parsed.netloc.replace('.', '_').replace('/', '_')
-    return f"feed_{domain}.xml"
+    # Get domain and path, replace unsafe characters
+    domain = parsed.netloc
+    path = parsed.path.strip('/')
+    
+    # Create safe filename by replacing unsafe characters
+    safe_name = f"{domain}_{path}".replace('/', '_').replace('.', '_')
+    
+    # Ensure the filename isn't too long
+    if len(safe_name) > 200:  # reasonable max length for filename
+        safe_name = safe_name[:200]
+    
+    return f"feed_{safe_name}.xml"
 
 def create_rss_feed(data, url):
     """
