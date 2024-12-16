@@ -25,6 +25,86 @@ websites:
   - url: https://www.polskieradio.pl/399/8097
     selector: .title.title--big
 
+  - url: https://www.polskieradio.pl/399/7978
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/399/7977
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/399/8174
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/399/8173
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/395/7789
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/395/7785
+    selector: .title.title--big
+
+  - url: https://www.polskieradio.pl/395/7784
+    selector: .title.title--big
+
+  - url: https://www.pap.pl/kraj?page=0
+    selector: .title
+
+  - url: https://www.pap.pl/en/world?page=0
+    selector: .title
+
+  - url: https://www.polskieradio.pl/395/7782
+    selector: .title.title--big
+
+  - url: https://www.pap.pl/en/poland?page=0
+    selector: .title
+
+  - url: https://www.wojsko-polskie.pl/dgrsz/articles/news/
+    selector: .newsgrid.hoverable
+
+  - url: https://www.wojsko-polskie.pl/kgzw/articles/list/aktualnosci-w/
+    selector: .newsgrid.hoverable
+
+  - url: https://www.wojsko-polskie.pl/sgwp/articles/list/aktualnosci-w/?strona=1
+    selector: .newsgrid.hoverable
+
+  - url: https://media.terytorialsi.wp.mil.pl/informacje
+    selector: .tile-js-link.clamp-3
+
+  - url: https://www.wojsko-polskie.pl/articles/news/
+    selector: .newsgrid.hoverable
+
+  - url: https://zbiam.pl/news/
+    selector: .oxy-post-padding
+
+  - url: https://www.gov.pl/web/premier/wydarzenia
+    selectors:
+      - .title
+      - .intro
+
+  - url: https://www.gov.pl/web/obrona-narodowa/aktualnosci5
+    selectors:
+      - .title
+      - .intro
+
+  - url: https://www.gov.pl/web/national-defence/news
+    selectors:
+      - .title
+      - .intro
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
