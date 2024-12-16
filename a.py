@@ -1,12 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 import yaml
-import json
-from datetime import datetime
 import urllib3
-import os
+from datetime import datetime
 from urllib.parse import urlparse
 import re
+from feedgen.feed import FeedGenerator
+import pytz
+import os
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -14,9 +15,7 @@ def clean_text(text):
     """
     Clean the text by removing extra whitespace, newlines and HTML tags
     """
-    # Remove HTML tags
     text = re.sub(r'<[^>]+>', '', text)
-    # Remove extra whitespace and newlines
     text = ' '.join(text.split())
     return text.strip()
 
@@ -33,16 +32,40 @@ def get_filename_from_url(url):
     """
     parsed = urlparse(url)
     domain = parsed.netloc.replace('.', '_').replace('/', '_')
-    return f"scraped_{domain}.json"
+    return f"feed_{domain}.xml"
 
-def save_to_json(data, url):
+def create_rss_feed(data, url):
     """
-    Save scraped data to JSON file with filename based on URL
+    Create RSS feed from scraped data and save it in the data folder
     """
+    # Create data directory if it doesn't exist
+    data_dir = 'data'
+    os.makedirs(data_dir, exist_ok=True)
+    
+    fg = FeedGenerator()
+    fg.title(f'Scraped News from {urlparse(url).netloc}')
+    fg.description('Automatically generated feed from scraped content')
+    fg.link(href=url)
+    fg.language('pl')
+    
+    # Set timezone to Poland
+    poland_tz = pytz.timezone('Europe/Warsaw')
+    
+    for item in data:
+        fe = fg.add_entry()
+        fe.title(item['text'])
+        fe.link(href=item['url'])
+        fe.description(item['text'])
+        # Convert timestamp to datetime with timezone
+        timestamp = datetime.fromisoformat(item['timestamp'])
+        local_timestamp = poland_tz.localize(timestamp)
+        fe.published(local_timestamp)
+        
     filename = get_filename_from_url(url)
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    return filename
+    # Save file in the data directory
+    full_path = os.path.join(data_dir, filename)
+    fg.rss_file(full_path)
+    return full_path
 
 def scrape_website(config):
     """
@@ -62,9 +85,8 @@ def scrape_website(config):
         elements = soup.select(config['selector'])
         
         for element in elements:
-            # Clean the text before adding to results
             text = clean_text(element.text)
-            if text:  # Only add non-empty texts
+            if text:
                 results.append({
                     "text": text,
                     "url": config['url'],
@@ -80,6 +102,9 @@ def scrape_website(config):
         return results
 
 if __name__ == "__main__":
+    # First, install required package:
+    # pip install feedgen pytz
+    
     config = load_config()
     websites = config['websites']
     
@@ -88,5 +113,5 @@ if __name__ == "__main__":
         results = scrape_website(website)
         
         if results:
-            filename = save_to_json(results, website['url'])
-            print(f"Saved {len(results)} items to {filename}")
+            filename = create_rss_feed(results, website['url'])
+            print(f"Created RSS feed with {len(results)} items in {filename}")

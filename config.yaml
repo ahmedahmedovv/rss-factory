@@ -1,12 +1,27 @@
 websites:
-  - url: https://www.pap.pl/kraj?page=0
+  - url: https://www.wojsko-polskie.pl/dorsz/articles/news/
+    selector: .newsgrid.hoverable
+
+  - url: https://forsal.pl/kraj/bezpieczenstwo
+    selector: .itemTitle
+
+  - url: https://www.polskieradio.pl/399/8097
+    selector: .title.title--big
+
+  - url: https://www.bbn.gov.pl/pl/wydarzenia
+    selector: .okno li
+
+  - url: https://en.bbn.gov.pl/en/news
+    selector: .okno li
+
+  - url: https://www.gov.pl/web/diplomacy/news-
     selector: .title
 
-  - url: https://sport.um.warszawa.pl/waw/aktywna-warszawa/aktualnosci
-    selector: .custom-list-page__item
 
-  - url: https://www.wojsko-polskie.pl/sgwp/articles/list/aktualnosci-w/?strona=1
-    selector: .newsgrid.hoverable
+
+
+
+
 
 
 
