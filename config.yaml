@@ -20,8 +20,8 @@ websites:
     link_selector: .okno li a
 
   - url: https://www.gov.pl/web/diplomacy/news-
-    selector: .title
-    link_selector: .title a
+    selector: .art-prev.art-prev--near-menu li
+    link_selector: .art-prev.art-prev--near-menu a
 
   - url: https://www.pap.pl/kraj
     selector: .title
@@ -94,18 +94,16 @@ websites:
     link_selector: .oxy-post a
 
   - url: https://www.gov.pl/web/premier/wydarzenia
-    selector: .title
-    link_selector: .title a
+    selector: .art-prev.art-prev--near-menu li
+    link_selector: .art-prev.art-prev--near-menu a
 
   - url: https://www.gov.pl/web/obrona-narodowa/aktualnosci5
-    selector: .title
-    link_selector: .title a
+    selector: .art-prev.art-prev--near-menu li
+    link_selector: .art-prev.art-prev--near-menu a
 
   - url: https://www.gov.pl/web/national-defence/news
-    selector: .title
-    link_selector: .title a
-
-
+    selector: .art-prev.art-prev--near-menu li
+    link_selector: .art-prev.art-prev--near-menu a
 
 
 
