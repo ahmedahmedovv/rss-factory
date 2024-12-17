@@ -1,7 +1,7 @@
 websites:
   - url: https://www.wojsko-polskie.pl/dorsz/articles/news/
-    selector: .opacityToTop
-    link_selector: .opacityToTop a
+    selector: .text 
+    link_selector: .text a
 
   - url: https://forsal.pl/kraj/bezpieczenstwo
     selector: .listItem.listItemSolr.itarticle
@@ -70,13 +70,16 @@ websites:
     selector: .title
 
   - url: https://www.wojsko-polskie.pl/dgrsz/articles/news/
-    selector: .newsgrid.hoverable
+    selector: .text
+    link_selector: .text a  
 
   - url: https://www.wojsko-polskie.pl/kgzw/articles/list/aktualnosci-w/
-    selector: .newsgrid.hoverable
+    selector: .text
+    link_selector: .text a  
 
   - url: https://www.wojsko-polskie.pl/sgwp/articles/list/aktualnosci-w/?strona=1
-    selector: .newsgrid.hoverable
+    selector: .text
+    link_selector: .text a  
 
   - url: https://media.terytorialsi.wp.mil.pl/informacje
     selector: .tile-js-link.clamp-3
