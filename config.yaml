@@ -1,7 +1,7 @@
 websites:
   - url: https://www.wojsko-polskie.pl/dorsz/articles/news/
-    selector: .text 
-    link_selector: .text a
+    selector: .newsgrid.hoverable
+    link_selector: .newsgrid.hoverable a
 
   - url: https://forsal.pl/kraj/bezpieczenstwo
     selector: .listItem.listItemSolr.itarticle
@@ -70,24 +70,24 @@ websites:
     selector: .title
 
   - url: https://www.wojsko-polskie.pl/dgrsz/articles/news/
-    selector: .text
-    link_selector: .text a  
+    selector: .newsgrid.hoverable
+    link_selector: .newsgrid.hoverable a
 
   - url: https://www.wojsko-polskie.pl/kgzw/articles/list/aktualnosci-w/
-    selector: .text
-    link_selector: .text a  
+    selector: .newsgrid.hoverable
+    link_selector: .newsgrid.hoverable a
 
   - url: https://www.wojsko-polskie.pl/sgwp/articles/list/aktualnosci-w/?strona=1
-    selector: .text
-    link_selector: .text a  
+    selector: .newsgrid.hoverable
+    link_selector: .newsgrid.hoverable a 
 
   - url: https://media.terytorialsi.wp.mil.pl/informacje
     selector: .tile-js-link.clamp-3
     link_selector: .tile-js-link.clamp-3 a
 
   - url: https://www.wojsko-polskie.pl/articles/news/
-    selector: .text
-    link_selector: .text a  
+    selector: .newsgrid.hoverable
+    link_selector: .newsgrid.hoverable a
 
   - url: https://zbiam.pl/news/
     selector: .oxy-post
