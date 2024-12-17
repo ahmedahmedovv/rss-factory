@@ -61,6 +61,7 @@ websites:
 
   - url: https://www.pap.pl/en/world?page=0
     selector: .title
+    link_selector: .title a
 
   - url: https://www.polskieradio.pl/395/7782
     selector: .article
@@ -68,7 +69,7 @@ websites:
 
   - url: https://www.pap.pl/en/poland?page=0
     selector: .title
-
+    link_selector: .title a
   - url: https://www.wojsko-polskie.pl/dgrsz/articles/news/
     selector: .newsgrid.hoverable
     link_selector: .newsgrid.hoverable a
