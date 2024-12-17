@@ -13,6 +13,8 @@ import sys
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import io
+import json
+from pathlib import Path
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -67,7 +69,7 @@ def get_filename_from_url(url):
 
 def create_rss_feed(data, url):
     """
-    Create RSS feed from scraped data and save it to Supabase storage
+    Create RSS feed from scraped data, save it to Supabase storage and local data folder
     """
     fg = FeedGenerator()
     fg.title(f'Scraped News from {urlparse(url).netloc}')
@@ -90,18 +92,26 @@ def create_rss_feed(data, url):
     # Generate filename
     filename = get_filename_from_url(url)
     
-    # Initialize Supabase client
-    supabase = init_supabase()
-    
-    # Generate RSS content as bytes
-    feed_content = fg.rss_str()
+    # Create data directory if it doesn't exist
+    data_dir = Path('data')
+    data_dir.mkdir(exist_ok=True)
     
     try:
-        # Convert feed_content to bytes if it isn't already
+        # Generate RSS content as bytes
+        feed_content = fg.rss_str()
+        
         if not isinstance(feed_content, bytes):
             feed_content = feed_content.encode('utf-8')
         
+        # Save XML file locally
+        xml_file_path = data_dir / filename
+        with open(xml_file_path, 'wb') as f:
+            f.write(feed_content)
+        logging.info(f"Saved XML file locally to {xml_file_path}")
+        
         # Upload to Supabase storage
+        supabase = init_supabase()
+        
         response = supabase.storage \
             .from_('rss_storage') \
             .upload(
@@ -118,10 +128,28 @@ def create_rss_feed(data, url):
             .from_('rss_storage') \
             .get_public_url(filename)
             
+        # Save RSS link to local JSON file
+        rss_links_file = data_dir / 'rss_links.json'
+        rss_links = {}
+        
+        if rss_links_file.exists():
+            with open(rss_links_file, 'r') as f:
+                rss_links = json.load(f)
+        
+        rss_links[url] = {
+            'filename': filename,
+            'public_url': public_url,
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        with open(rss_links_file, 'w') as f:
+            json.dump(rss_links, f, indent=2)
+            
+        logging.info(f"Saved RSS link to {rss_links_file}")
         return public_url
         
     except Exception as e:
-        logging.error(f"Error uploading to Supabase: {str(e)}")
+        logging.error(f"Error in create_rss_feed: {str(e)}")
         raise
 
 def setup_logging():
@@ -175,7 +203,6 @@ def scrape_website(config):
     try:
         logger.info(f"Starting to scrape: {config['url']}")
         
-        # Add retry mechanism
         session = requests.Session()
         retries = urllib3.util.Retry(
             total=3,
@@ -184,32 +211,38 @@ def scrape_website(config):
         )
         session.mount('https://', requests.adapters.HTTPAdapter(max_retries=retries))
         
-        # Add timeout and additional parameters
         response = session.get(
             config['url'],
             headers=headers,
-            verify=False,  # Only if SSL verification is causing issues
-            timeout=(10, 30),  # (connect timeout, read timeout)
+            verify=False,
+            timeout=(10, 30),
             allow_redirects=True
         )
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')
-        selectors = config.get('selectors', [config.get('selector')])
+        elements = soup.select(config['selector'])
+        logger.info(f"Found {len(elements)} elements with selector: {config['selector']}")
         
-        for selector in selectors:
-            elements = soup.select(selector)
-            logger.info(f"Found {len(elements)} elements with selector: {selector}")
+        for element in elements:
+            # Get the title text
+            text = clean_text(element.text)
+            # Get the link URL
+            link_element = element.find('a')
+            article_url = link_element['href'] if link_element else config['url']
             
-            for element in elements:
-                text = clean_text(element.text)
-                if text:
-                    results.append({
-                        "text": text,
-                        "url": config['url'],
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    logger.debug(f"Scraped content: {text[:100]}...")
+            # Make sure URL is absolute
+            if article_url.startswith('/'):
+                parsed_base = urlparse(config['url'])
+                article_url = f"{parsed_base.scheme}://{parsed_base.netloc}{article_url}"
+            
+            if text:
+                results.append({
+                    "text": text,
+                    "url": article_url,  # Use the specific article URL
+                    "timestamp": datetime.now().isoformat()
+                })
+                logger.debug(f"Scraped content: {text[:100]}... URL: {article_url}")
         
     except requests.exceptions.RequestException as e:
         logger.error(f"Network error while scraping {config['url']}: {str(e)}")

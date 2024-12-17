@@ -1,59 +1,70 @@
 websites:
   - url: https://www.wojsko-polskie.pl/dorsz/articles/news/
-    selector: .newsgrid.hoverable
+    selector: .opacityToTop
+    link_selector: .opacityToTop a
 
   - url: https://forsal.pl/kraj/bezpieczenstwo
-    selector: .itemTitle
+    selector: .listItem.listItemSolr.itarticle
+    link_selector: .listItem.listItemSolr.itarticle a
 
   - url: https://www.polskieradio.pl/399/8097
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.bbn.gov.pl/pl/wydarzenia
     selector: .okno li
+    link_selector: .okno li a
 
   - url: https://en.bbn.gov.pl/en/news
     selector: .okno li
+    link_selector: .okno li a
 
   - url: https://www.gov.pl/web/diplomacy/news-
-    selectors:
-      - .title
-      - .intro
-
-  - url: https://www.pap.pl/kraj?page=0
     selector: .title
+    link_selector: .title a
+
+  - url: https://www.pap.pl/kraj
+    selector: .title
+    link_selector: .title a
 
   - url: https://www.polskieradio.pl/399/8097
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/399/7978
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/399/7977
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/399/8174
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/399/8173
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/395/7789
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/395/7785
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.polskieradio.pl/395/7784
-    selector: .title.title--big
-
-  - url: https://www.pap.pl/kraj?page=0
-    selector: .title
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.pap.pl/en/world?page=0
     selector: .title
 
   - url: https://www.polskieradio.pl/395/7782
-    selector: .title.title--big
+    selector: .article
+    link_selector: .article a
 
   - url: https://www.pap.pl/en/poland?page=0
     selector: .title
@@ -69,27 +80,27 @@ websites:
 
   - url: https://media.terytorialsi.wp.mil.pl/informacje
     selector: .tile-js-link.clamp-3
+    link_selector: .tile-js-link.clamp-3 a
 
   - url: https://www.wojsko-polskie.pl/articles/news/
-    selector: .newsgrid.hoverable
+    selector: .text
+    link_selector: .text a  
 
   - url: https://zbiam.pl/news/
-    selector: .oxy-post-padding
+    selector: .oxy-post
+    link_selector: .oxy-post a
 
   - url: https://www.gov.pl/web/premier/wydarzenia
-    selectors:
-      - .title
-      - .intro
+    selector: .title
+    link_selector: .title a
 
   - url: https://www.gov.pl/web/obrona-narodowa/aktualnosci5
-    selectors:
-      - .title
-      - .intro
+    selector: .title
+    link_selector: .title a
 
   - url: https://www.gov.pl/web/national-defence/news
-    selectors:
-      - .title
-      - .intro
+    selector: .title
+    link_selector: .title a
 
 
 
