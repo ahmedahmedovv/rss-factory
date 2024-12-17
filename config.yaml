@@ -1,7 +1,7 @@
 websites:
   - url: https://www.wojsko-polskie.pl/dorsz/articles/news/
     selector: .newsgrid-list li
-    link_selector: .newsgrid-list li a
+    link_selector: .newsgrid hoverable a
 
   - url: https://forsal.pl/kraj/bezpieczenstwo
     selector: .listItem.listItemSolr.itarticle
